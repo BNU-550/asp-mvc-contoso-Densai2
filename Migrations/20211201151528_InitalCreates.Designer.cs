@@ -7,11 +7,11 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace ASP_MVC_Contoso.Data.Migrations
+namespace ASP_MVC_Contoso.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20211126141125_InitalCreate")]
-    partial class InitalCreate
+    [Migration("20211201151528_InitalCreates")]
+    partial class InitalCreates
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,19 +23,27 @@ namespace ASP_MVC_Contoso.Data.Migrations
 
             modelBuilder.Entity("ASP_MVC_Contoso.Models.Course", b =>
                 {
-                    b.Property<int>("CourseID")
-                        .HasColumnType("int");
+                    b.Property<string>("CourseID")
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
 
                     b.Property<string>("CourseCode")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<int>("Credits")
                         .HasColumnType("int");
+
+                    b.Property<string>("ModuleID")
+                        .HasColumnType("nvarchar(6)");
 
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("CourseID");
+
+                    b.HasIndex("ModuleID");
 
                     b.ToTable("Courses");
                 });
@@ -47,11 +55,14 @@ namespace ASP_MVC_Contoso.Data.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("CourseID")
-                        .HasColumnType("int");
+                    b.Property<string>("CourseID")
+                        .HasColumnType("nvarchar(8)");
 
                     b.Property<int?>("Grade")
                         .HasColumnType("int");
+
+                    b.Property<string>("ModuleID")
+                        .HasColumnType("nvarchar(6)");
 
                     b.Property<int>("StudentID")
                         .HasColumnType("int");
@@ -60,9 +71,34 @@ namespace ASP_MVC_Contoso.Data.Migrations
 
                     b.HasIndex("CourseID");
 
+                    b.HasIndex("ModuleID");
+
                     b.HasIndex("StudentID");
 
                     b.ToTable("Enrollments");
+                });
+
+            modelBuilder.Entity("ASP_MVC_Contoso.Models.Module", b =>
+                {
+                    b.Property<string>("ModuleID")
+                        .HasMaxLength(6)
+                        .HasColumnType("nvarchar(6)");
+
+                    b.Property<int>("Credit")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.HasKey("ModuleID");
+
+                    b.ToTable("Modules");
                 });
 
             modelBuilder.Entity("ASP_MVC_Contoso.Models.Student", b =>
@@ -76,10 +112,14 @@ namespace ASP_MVC_Contoso.Data.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("FirstMidName")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.Property<string>("LastName")
-                        .HasColumnType("nvarchar(max)");
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
 
                     b.HasKey("StudentID");
 
@@ -286,13 +326,22 @@ namespace ASP_MVC_Contoso.Data.Migrations
                     b.ToTable("AspNetUserTokens");
                 });
 
+            modelBuilder.Entity("ASP_MVC_Contoso.Models.Course", b =>
+                {
+                    b.HasOne("ASP_MVC_Contoso.Models.Module", null)
+                        .WithMany("Courses")
+                        .HasForeignKey("ModuleID");
+                });
+
             modelBuilder.Entity("ASP_MVC_Contoso.Models.Enrollment", b =>
                 {
                     b.HasOne("ASP_MVC_Contoso.Models.Course", "Course")
                         .WithMany("Enrollments")
-                        .HasForeignKey("CourseID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("CourseID");
+
+                    b.HasOne("ASP_MVC_Contoso.Models.Module", null)
+                        .WithMany("Enrollments")
+                        .HasForeignKey("ModuleID");
 
                     b.HasOne("ASP_MVC_Contoso.Models.Student", "Student")
                         .WithMany("Enrollments")
@@ -358,6 +407,13 @@ namespace ASP_MVC_Contoso.Data.Migrations
 
             modelBuilder.Entity("ASP_MVC_Contoso.Models.Course", b =>
                 {
+                    b.Navigation("Enrollments");
+                });
+
+            modelBuilder.Entity("ASP_MVC_Contoso.Models.Module", b =>
+                {
+                    b.Navigation("Courses");
+
                     b.Navigation("Enrollments");
                 });
 

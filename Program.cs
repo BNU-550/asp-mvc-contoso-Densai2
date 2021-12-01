@@ -14,7 +14,7 @@ namespace ASP_MVC_Contoso
         {
             var host = CreateHostBuilder(args).Build();
 
-            CreateDbIfNotExists(host);
+            //CreateDbIfNotExists(host);
 
             host.Run();
         }
